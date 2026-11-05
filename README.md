@@ -1,6 +1,6 @@
-# Mu Metro backend
+# Mu Metro
 
-Backend only for a Nu Metro website redesign. TypeScript, Fastify 5, Node.js 24, and persistent SQLite. No frontend is included.
+Cinema website development project with a TypeScript/Fastify backend, Node.js 24, persistent SQLite, and a React + TypeScript frontend in `frontend/`.
 
 This is an independent development project, not an official Nu Metro service. The seed catalogue contains fictional films and demonstration cinemas. It does not fetch real Nu Metro availability, charge cards, send emails, or issue valid cinema tickets.
 
@@ -80,3 +80,15 @@ docker compose exec -e SEED_ADMIN_EMAIL -e SEED_ADMIN_PASSWORD api node dist/see
 ```
 
 The container image includes the compiled seed CLI and does not require development dependencies at runtime. Compose binds the API to loopback. Configure HTTPS at a reverse proxy before external use.
+
+## React frontend
+
+See [frontend setup](frontend/README.md). In a separate terminal, run:
+
+```sh
+cd frontend
+npm ci
+npm run dev
+```
+
+The frontend runs at http://localhost:5173 and proxies API requests to the backend on port 3000.
