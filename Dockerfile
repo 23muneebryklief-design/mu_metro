@@ -1,3 +1,10 @@
+FROM node:24-bookworm-slim AS frontend
+WORKDIR /frontend
+COPY frontend/package*.json ./
+RUN npm ci --no-audit --no-fund
+COPY frontend ./
+RUN npm run build
+
 FROM node:24-bookworm-slim AS build
 WORKDIR /app
 COPY package*.json ./
@@ -12,6 +19,7 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm ci --omit=dev --no-audit --no-fund && mkdir /app/data && chown node:node /app/data
 COPY --from=build /app/dist ./dist
+COPY --from=frontend /frontend/dist ./frontend/dist
 COPY migrations ./migrations
 USER node
 EXPOSE 3000

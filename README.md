@@ -83,12 +83,18 @@ The container image includes the compiled seed CLI and does not require developm
 
 ## React frontend
 
-See [frontend setup](frontend/README.md). In a separate terminal, run:
+The Nu Metro reference interface includes movie browsing, cinema and experience filters, sign-in, live seats, reservations, demo checkout, and booking history. See [frontend setup](frontend/README.md) for full instructions.
+
+From the repository root:
 
 ```sh
-cd frontend
 npm ci
-npm run dev
+npm ci --prefix frontend
+npm run setup
+npm run db:seed:reference
+npm run dev:full
 ```
 
-The frontend runs at http://localhost:5173 and proxies API requests to the backend on port 3000.
+Open http://localhost:5173. If another project uses that port, set `FRONTEND_PORT=5174` in the root ignored `.env`. The development proxy connects to the API on port 3000. The optional reference seed adds film artwork with fictional screenings; it does not replace the original seed or connect to live Nu Metro inventory.
+
+For a connected production build, run `npm run build:full`, then `npm start`. Fastify serves the frontend and API together on port 3000. The Docker image also builds both.

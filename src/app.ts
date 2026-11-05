@@ -5,6 +5,9 @@ import jwt from '@fastify/jwt';
 import rateLimit from '@fastify/rate-limit';
 import swagger from '@fastify/swagger';
 import swaggerUi from '@fastify/swagger-ui';
+import fastifyStatic from '@fastify/static';
+import { existsSync } from 'node:fs';
+import { resolve } from 'node:path';
 import { ZodError } from 'zod';
 import { ApiError } from './lib/errors.js';
 import { openDatabase, migrate, type Database } from './db.js';
@@ -13,7 +16,7 @@ import { registerAuth } from './routes/auth.js';
 import { registerCatalog } from './routes/catalog.js';
 import { registerBookings } from './routes/bookings.js';
 
-export async function buildApp(config: Config, options: { db?: Database; logger?: boolean; rateLimit?: boolean } = {}) {
+export async function buildApp(config: Config, options: { db?: Database; logger?: boolean; rateLimit?: boolean; frontendRoot?: string | false } = {}) {
   const db = options.db ?? openDatabase(config.databasePath);
   migrate(db);
   const app = Fastify({
@@ -85,6 +88,11 @@ export async function buildApp(config: Config, options: { db?: Database; logger?
   await registerAuth(app, ctx);
   await registerCatalog(app, ctx);
   await registerBookings(app, ctx);
+  const frontendRoot = options.frontendRoot === false ? null : options.frontendRoot ?? (config.nodeEnv === 'test' ? null : resolve('frontend/dist'));
+  if (frontendRoot && existsSync(resolve(frontendRoot, 'index.html'))) {
+    // Hash-based frontend routes all resolve to /. Unknown API paths retain JSON 404 responses.
+    await app.register(fastifyStatic, { root: frontendRoot, wildcard: false });
+  }
   await app.ready();
   return app;
 }
