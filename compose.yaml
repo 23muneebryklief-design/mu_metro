@@ -1,0 +1,12 @@
+services:
+  api:
+    build: .
+    ports: ["127.0.0.1:3000:3000"]
+    environment:
+      JWT_SECRET: ${JWT_SECRET:?Set JWT_SECRET to a random secret of at least 32 characters}
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:5173}
+      DEMO_PAYMENTS: ${DEMO_PAYMENTS:-false}
+    volumes: ["cinema-data:/app/data"]
+    restart: unless-stopped
+volumes:
+  cinema-data:
