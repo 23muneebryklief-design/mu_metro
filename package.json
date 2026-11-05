@@ -4,7 +4,9 @@
   "private": true,
   "description": "Cinema catalogue and reservation API for a Nu Metro redesign",
   "type": "module",
-  "engines": { "node": ">=24.0.0 <25" },
+  "engines": {
+    "node": ">=24.0.0 <25"
+  },
   "scripts": {
     "setup": "node scripts/setup.mjs",
     "dev": "node --env-file-if-exists=.env --import tsx --watch src/server.ts",
@@ -13,7 +15,8 @@
     "typecheck": "tsc --noEmit",
     "test": "node --import tsx --test tests/*.test.ts",
     "db:migrate": "node --env-file-if-exists=.env --import tsx scripts/migrate.ts",
-    "db:seed": "node --env-file-if-exists=.env --import tsx scripts/seed.ts"
+    "db:seed": "node --env-file-if-exists=.env --import tsx scripts/seed.ts",
+    "db:seed:reference": "node --env-file-if-exists=.env --import tsx scripts/seed-reference.ts"
   },
   "dependencies": {
     "@fastify/cors": "11.4.0",
@@ -25,5 +28,9 @@
     "fastify": "5.12.8",
     "zod": "4.6.7"
   },
-  "devDependencies": { "@types/node": "^24.0.0", "tsx": "4.23.15", "typescript": "^5.9.3" }
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "tsx": "4.23.15",
+    "typescript": "^5.9.3"
+  }
 }
