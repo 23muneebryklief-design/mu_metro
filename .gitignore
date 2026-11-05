@@ -1,11 +1,17 @@
 node_modules/
 dist/
-data/
+dist-ssr/
 .env
 .env.*
 !.env.example
+*.local
+*.log
+coverage/
+.DS_Store
+.vscode/
+.idea/
+# Local backend data may remain when switching from main.
+data/
 *.db
 *.db-shm
 *.db-wal
-coverage/
-*.log

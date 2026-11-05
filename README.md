@@ -1,100 +1,49 @@
-# Mu Metro
+# Mu Metro frontend
 
-Cinema website development project with a TypeScript/Fastify backend, Node.js 24, persistent SQLite, and a React + TypeScript frontend in `frontend/`.
+This branch contains only the React + TypeScript + Vite frontend. The application lives at the repository root; there is no nested `frontend/` folder. The separate Fastify/SQLite backend is on the `main` branch.
 
-This is an independent development project, not an official Nu Metro service. The seed catalogue contains fictional films and demonstration cinemas. It does not fetch real Nu Metro availability, charge cards, send emails, or issue valid cinema tickets.
+## Run the frontend
 
-## Run locally
-
-Install **Node.js 24 LTS**, then run these commands from the project directory:
+Requires Node.js 24 LTS. From this checkout's root:
 
 ```sh
 npm ci
-npm run setup
-npm run db:seed
 npm run dev
 ```
 
-`setup` creates a git-ignored `.env` with a random JWT secret. It preserves an existing `.env`. The generated local configuration explicitly enables demo payments; without that opt-in the API refuses payment confirmation.
+Open http://localhost:5173. Run the backend in another checkout and terminal, as shown below. The frontend proxies `/api` and `/health` to http://127.0.0.1:3000. If the API is stopped, movie browsing and bookings display a connection error; there is no fake catalogue fallback.
 
-- API: `http://127.0.0.1:3000/api/v1`
-- Interactive API docs: `http://127.0.0.1:3000/docs`
-- OpenAPI JSON: `http://127.0.0.1:3000/docs/json`
-- Database readiness: `http://127.0.0.1:3000/health`
+To change the API target or frontend port, copy `.env.example` to `.env` and edit `API_PROXY_TARGET` or `FRONTEND_PORT`. Both `npm run dev` and `npm run preview` use the configured API proxy.
 
-Migrations run automatically at startup. `npm run db:migrate` is also available. The database is stored at `data/mu-metro.db`, survives restarts, and is excluded from Git. Seed data creates an initial seven-day schedule starting tomorrow in South African time. Rerunning the seed preserves existing records and dates; it does not refresh an old schedule.
+## Run the backend separately
 
-## Create an administrator
-
-There is **no default administrator login**. Add your own credentials to the ignored `.env`, then run `npm run db:seed`:
-
-```dotenv
-SEED_ADMIN_EMAIL=your-address@example.com
-SEED_ADMIN_PASSWORD=a-unique-long-password-of-your-own
-```
-
-Use at least 12 characters. Remove these two values from `.env` after successful setup. Log in using `/api/v1/auth/login`. Seeding will not reset an existing admin's password or elevate an existing customer account.
-
-## Included features
-
-- Customer registration, login, profile, and logout that revokes all current sessions.
-- Salted scrypt password hashes, 15-minute JWTs, live role checks, rate limits, and exact-origin CORS.
-- Movies, cinema locations, auditoriums, experiences, seats, and upcoming screenings.
-- Search, bounded pagination, and screening date filters using `Africa/Johannesburg` calendar days.
-- Administrator create/update APIs for catalogue and schedules, audit records, and overlap checks with 20 minutes between screenings.
-- Atomic, expiring seat holds: up to ten seats per hold and three active reservations per customer.
-- Owner-only bookings, server-calculated integer ZAR cents, idempotent writes, and explicit demo payment confirmation.
-- Schema migrations, seed data, Swagger/OpenAPI, Docker configuration, and GitHub Actions checks.
-
-See [API usage](docs/API.md) for routes and the complete booking sequence, and [operating notes](docs/OPERATIONS.md) for deployment and limits.
-
-## Verify and build
+Keep each branch in its own directory so dependencies and environment files do not conflict. For example:
 
 ```sh
-npm run typecheck
-npm test
-npm run build
-npm start
-```
-
-Tests use isolated databases and injected requests; the concurrency test uses separate processes against an on-disk database. They do not require real payment credentials or mutate your local database. The compiled server still requires the project-level `migrations/` directory and starts from the project directory.
-
-## Docker
-
-Create `.env` as above, then:
-
-```sh
-docker compose up --build -d
-```
-
-The database uses the persistent `cinema-data` volume. To add the sample catalogue in the container:
-
-```sh
-docker compose exec api node dist/seed-cli.js
-```
-
-To create the first admin in the container, set `SEED_ADMIN_EMAIL` and `SEED_ADMIN_PASSWORD` in your shell, then use:
-
-```sh
-docker compose exec -e SEED_ADMIN_EMAIL -e SEED_ADMIN_PASSWORD api node dist/seed-cli.js
-```
-
-The container image includes the compiled seed CLI and does not require development dependencies at runtime. Compose binds the API to loopback. Configure HTTPS at a reverse proxy before external use.
-
-## React frontend
-
-The Nu Metro reference interface includes movie browsing, cinema and experience filters, sign-in, live seats, reservations, demo checkout, and booking history. See [frontend setup](frontend/README.md) for full instructions.
-
-From the repository root:
-
-```sh
+git clone --branch main --single-branch https://github.com/23muneebryklief-design/mu_metro.git ../mu_metro-backend
+cd ../mu_metro-backend
 npm ci
-npm ci --prefix frontend
 npm run setup
 npm run db:seed:reference
-npm run dev:full
+npm run dev
 ```
 
-Open http://localhost:5173. If another project uses that port, set `FRONTEND_PORT=5174` in the root ignored `.env`. The development proxy connects to the API on port 3000. The optional reference seed adds film artwork with fictional screenings; it does not replace the original seed or connect to live Nu Metro inventory.
+Leave that terminal running. In this frontend checkout, run `npm run dev` in a second terminal. The backend seed command adds the optional film catalogue and fictional screenings used by the interface. `npm run db:seed` instead loads the original three-film demonstration catalogue. Backend setup, seeding, database and payment configuration belong to `main`; they are not frontend scripts.
 
-For a connected production build, run `npm run build:full`, then `npm start`. Fastify serves the frontend and API together on port 3000. The Docker image also builds both.
+## Build and preview
+
+```sh
+npm run lint
+npm run build
+npm run preview
+```
+
+Vite prints the preview URL, usually http://localhost:4173. Keep the API running to test the built application. `dist/` contains the deployable static frontend; it is not committed.
+
+For deployment, serve `dist/` and proxy `/api` to your backend. Alternatively, set `VITE_API_BASE_URL` to your public API URL **before building**, and configure that frontend origin in the backend's `CORS_ORIGINS`. There is no backend server or combined Docker image in this branch. Never put secrets in `VITE_` environment variables.
+
+## Connected features
+
+Movie catalogue and search, cinema and experience filters, movie details, South African showtimes, registration and sign-in, live seat maps, reservations, demo checkout, cancellation and booking history all use the API. The server controls availability and prices. Session tokens expire after 15 minutes; passwords are not saved.
+
+This is an independent development project with visuals based on https://numetro.co.za/. Demo payments do not charge money or issue valid cinema tickets. Official partner discounts and real Nu Metro inventory are not integrated. See [reference artwork provenance](public/reference/README.md).
