@@ -413,9 +413,9 @@ header {
 }
 footer {
   position: relative;
-  background: #1e271f url("/reference/wildwood-footer.png") center bottom/cover
+  background: #fff url("/reference/wildwood-footer.png") center bottom/cover
     no-repeat;
-  color: #fff;
+  color: #666;
   padding-top: 50px;
 }
 .footer-main {
@@ -432,7 +432,7 @@ footer {
 .footer-main a,
 .footer-main button {
   display: block;
-  color: #fff;
+  color: #666;
   font-size: 12px;
   line-height: 2.2;
   padding: 0;
@@ -467,9 +467,9 @@ footer {
   justify-content: space-between;
   font-size: 10px;
   padding: 17px 0;
-  border-top: 1px solid #ffffff35;
+  border-top: 1px solid #ddd;
   gap: 15px;
-  color: #eee;
+  color: #888;
 }
 .back-top {
   position: absolute;
@@ -1663,3 +1663,5 @@ input {
 .carousel-next {
   right: 5%;
 }
+
+.quick-actions img { filter: brightness(0) saturate(100%) invert(66%) sepia(77%) saturate(1094%) hue-rotate(345deg) brightness(102%) contrast(94%); }
